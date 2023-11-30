@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Form } from 'react-router-dom';
+import { Form, useActionData, useNavigation } from 'react-router-dom';
 
 import classes from './AuthForm.module.css';
 
 function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
+  const data = useActionData();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state == "submitting";
 
   function switchAuthHandler() {
     setIsLogin((isCurrentlyLogin) => !isCurrentlyLogin);
@@ -14,6 +17,12 @@ function AuthForm() {
     <>
       <Form method="post" className={classes.form}>
         <h1>{isLogin ? 'Log in' : 'Create a new user'}</h1>
+        {data && data.errors && <ul>
+            {Object.values(data.errors).map((err) => {
+              <li key={err}>{err}</li>
+            })}
+          </ul>}
+          {data && data.message && <p>{data.message}</p>}
         <p>
           <label htmlFor="email">Email</label>
           <input id="email" type="email" name="email" required />
@@ -26,7 +35,7 @@ function AuthForm() {
           <button onClick={switchAuthHandler} type="button">
             {isLogin ? 'Create new user' : 'Login'}
           </button>
-          <button>Save</button>
+          <button>{isSubmitting ? "Sending..." : "Save"}</button>
         </div>
       </Form>
     </>
